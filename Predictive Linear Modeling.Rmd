@@ -1,0 +1,61 @@
+---
+title: "Checking Leverages"
+author: "Alex Holbrook"
+date: "5/5/2022"
+output: word_document
+---
+
+```{r}
+library(faraway)
+data(pima, package="faraway")
+summary(pima)
+```
+
+##Weird Values:
+##Glucose Value of 0
+##Diastolic Value of 0
+##Triceps Value of 0 and 99
+##Insulin value of 0
+##BMI Value of 0 and 67.10 seems really high 
+
+```{r}
+lmod <- lm(glucose ~ pregnant+insulin+triceps+age+bmi+diastolic, data=pima)
+summary(lmod)
+```
+
+```{r}
+plot(lmod)
+```
+
+
+```{r}
+data(pima, package = "faraway")
+hatv <- hatvalues(lmod)
+hist(hatv)
+```
+
+```{r}
+summary(hatv>0.015625)
+```
+
+```{r}
+patients <-row.names(pima)
+pima2 <- data.frame(patients, pima)
+halfnorm(hatv)
+```
+
+```{r}
+newpima <-pima[which(pima$insulin>0), ]
+summary(newpima$insulin)
+```
+
+```{r}
+pima2 <- data.frame(pima, hatv)
+new.data <- subset(pima2, hatv <= 0.015625)
+lmod.no.high.leverages <-lm(glucose ~ pregnant+insulin+triceps+age+bmi+diastolic, data=new.data)
+summary(lmod.no.high.leverages)
+```
+
+```{r}
+plot(lmod.no.high.leverages)
+```
